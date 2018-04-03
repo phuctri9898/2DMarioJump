@@ -8,16 +8,16 @@ public class GameController : MonoBehaviour
 {
     public static GameController Instante;
     [SerializeField] GameObject player;
-    [SerializeField] GameObject pnlGameOver, pnlPause;
+    [SerializeField] GameObject gameOverView, pauseView;
     [SerializeField] Text txtScore, txtBestScore;
     [SerializeField] GameObject bullet;
 
-    float deltaTime = 0;
-    bool isStart = false;
+    private float deltaTime = 0;
     public int score = 0;
-    public float enemySpeed = 5f;
-    bool isPause;
+    public float bulletSpeed = 5f;
+    private bool isPause;
 
+    
     private void Update()
     {
         txtScore.text = "Score: " + score;
@@ -35,19 +35,36 @@ public class GameController : MonoBehaviour
         InvokeRepeating("AddBullet", 1, 2);
     }
 
+    private void Init()
+    {
+        player.transform.position = Vector2.zero;
+        player.transform.rotation = Quaternion.identity;
+        deltaTime = 0;
+        score = 0;
+        bulletSpeed = 5f;
+        Time.timeScale = 1;
+    }
+
     public void Pause()
     {
         isPause = !isPause;
         if (isPause)
         {
-            pnlPause.SetActive(true);
+            pauseView.SetActive(true);
             Time.timeScale = 0;
         }
         else
         {
-            pnlPause.SetActive(false);
+            pauseView.SetActive(false);
             Time.timeScale = 1;
         }
+    }
+
+    public void Replay()
+    {
+        DestroyBullet();
+        Init();
+        gameOverView.SetActive(false);
     }
 
     public void Home()
@@ -63,7 +80,8 @@ public class GameController : MonoBehaviour
 
     public void GameOver()
     {
-        pnlGameOver.SetActive(true);
+        gameOverView.SetActive(true);
+        gameOverView.transform.Find("txtScore").GetComponent<Text>().text = "Your Score: " + score;
         StartCoroutine(PostScore());
 
         Time.timeScale = 0;
@@ -102,6 +120,16 @@ public class GameController : MonoBehaviour
         if (PlayerPrefs.GetInt(Const.PLAYER_SCORE) <= this.score)
             PlayerPrefs.SetInt(Const.PLAYER_SCORE, this.score);
 
-        this.enemySpeed += Const.SPEED_STEP;
+        this.bulletSpeed += Const.SPEED_STEP;
+    }
+
+    private void DestroyBullet()
+    {
+        GameObject[] listBullet = GameObject.FindGameObjectsWithTag(Const.BULLET_TAG);
+        for (int i=0; i < listBullet.Length; i++)
+        {
+            Destroy(listBullet[i]);
+        }
+
     }
 }

@@ -15,5 +15,7 @@ The following required functionality is complete:
 * [x] As a player I should be able to see my cumulative score on the screen throughout the game.
 * [x] As a player I should see a "Game Over" screen when I collide with an obstacle. The game over screen should show my final score. The game should attempt to send my score to a leaderboard service.
 As a player I should be able to pause the game, with an option to quit, which would exit the game.
+
 The following **additional** features are implemented:
-* [x] use keyboard to control (left arrow, right arrow, jump)
+* [x] Use keyboard to control (left arrow, right arrow, jump)
+* [x] Replay function

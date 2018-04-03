@@ -2,7 +2,7 @@
 using System.Runtime.InteropServices;
 using UnityEngine;
 
-public class EnemyController : MonoBehaviour
+public class BulletController : MonoBehaviour
 {
     private bool isScore;
     private Transform player;
@@ -15,7 +15,7 @@ public class EnemyController : MonoBehaviour
     private void Update()
     {
         //move left
-        transform.Translate(Vector2.left * Time.deltaTime * GameController.Instante.enemySpeed);
+        transform.Translate(Vector2.left * Time.deltaTime * GameController.Instante.bulletSpeed);
         //check & destroy
         if (transform.position.x < -Camera.main.ScreenToWorldPoint(new Vector3(Screen.width, Screen.height, 0)).x)
         {
