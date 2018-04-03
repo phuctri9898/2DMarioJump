@@ -11,7 +11,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private Button btnLeft;
     [SerializeField] private Button btnRight;
     [SerializeField] private Button btnJump;
-    private float borderX;
+    private float borderX, borderY;
 
     void Awake()
     {
@@ -20,8 +20,8 @@ public class PlayerController : MonoBehaviour
 
     void Start()
     {
-        borderX = Camera.main.ScreenToWorldPoint(new Vector3(Screen.width, Screen.height, 0)).x - 2;
-        
+        borderX = Camera.main.ScreenToWorldPoint(new Vector3(Screen.width, Screen.height, 0)).x - 1;
+        borderY = Camera.main.ScreenToWorldPoint(new Vector3(Screen.width, Screen.height, 0)).y - 1;
         btnLeft.onClick.AddListener(LeftKeyHandle);
 
         btnRight.onClick.AddListener(RightKeyHandle);
@@ -29,21 +29,31 @@ public class PlayerController : MonoBehaviour
         btnJump.onClick.AddListener(Jump);
     }
 
+    void FixedUpdate()
+    {
+        transform.rotation = Quaternion.identity;
+    }
     void Update()
     {
         var pos = transform.position;
-        if (transform.position.x >= borderX)
+        if (!GameController.Instante.isPause)
+        {
+            pos.x -= 0.05f;
+        }
+        if (pos.x >= borderX)
         {
             pos.x = borderX;
-            transform.position = pos;
         }
-        
-        if (transform.position.x <= -borderX)
+        else if (pos.x <= -borderX)
         {
             pos.x = -borderX;
-            transform.position = pos;
+        }
+        if (pos.y < -borderY)
+        {
+            GameController.Instante.GameOver();
         }
 
+        transform.position = pos;
         if (Input.GetKey(KeyCode.LeftArrow))
         {
             LeftKeyHandle();
@@ -68,7 +78,7 @@ public class PlayerController : MonoBehaviour
 
     private void RightKeyHandle()
     {
-        myBody.velocity = new Vector2(speed * Time.deltaTime, myBody.velocity.y);
+        myBody.velocity = new Vector2(speed * 2* Time.deltaTime, myBody.velocity.y);
     }
 
     private void Jump()

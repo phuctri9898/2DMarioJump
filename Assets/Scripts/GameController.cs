@@ -7,6 +7,7 @@ using UnityEngine.UI;
 public class GameController : MonoBehaviour
 {
     public static GameController Instante;
+    [SerializeField] GameObject bg1, bg2;
     [SerializeField] GameObject player;
     [SerializeField] GameObject gameOverView, pauseView;
     [SerializeField] Text txtScore, txtBestScore;
@@ -15,7 +16,7 @@ public class GameController : MonoBehaviour
     private float deltaTime = 0;
     public int score = 0;
     public float bulletSpeed = 5f;
-    private bool isPause;
+    public bool isPause;
 
     
     private void Update()
@@ -23,6 +24,30 @@ public class GameController : MonoBehaviour
         txtScore.text = "Score: " + score;
         deltaTime += Time.time;
         txtBestScore.text = "Best Score: " + PlayerPrefs.GetInt(Const.PLAYER_SCORE);
+        if (!isPause)
+        {
+            float camX = Camera.main.ScreenToWorldPoint(new Vector3(Screen.width, Screen.height, 0)).x;
+
+            var pos1 = bg1.transform.position;
+            pos1.x -= 0.05f;
+            if (pos1.x < -2 * camX)
+            {
+                pos1.x = 2 * camX + 1 + Random.value * 0.5f;
+                pos1.y = -4.28f + Random.value * 2f;
+            }
+
+            bg1.transform.position = pos1;
+
+            var pos2 = bg2.transform.position;
+            pos2.x -= 0.05f;
+            if (pos2.x < -2 * camX)
+            {
+                pos2.x = 2 * camX + 1 + Random.value * 0.5f;
+                pos2.y = -4.28f + Random.value * 2f;
+            }
+
+            bg2.transform.position = pos2;
+        }
     }
 
     private void Awake()
@@ -38,7 +63,6 @@ public class GameController : MonoBehaviour
     private void Init()
     {
         player.transform.position = Vector2.zero;
-        player.transform.rotation = Quaternion.identity;
         deltaTime = 0;
         score = 0;
         bulletSpeed = 5f;
@@ -80,6 +104,7 @@ public class GameController : MonoBehaviour
 
     public void GameOver()
     {
+        isPause = true;
         gameOverView.SetActive(true);
         gameOverView.transform.Find("txtScore").GetComponent<Text>().text = "Your Score: " + score;
         StartCoroutine(PostScore());
@@ -90,9 +115,9 @@ public class GameController : MonoBehaviour
     public IEnumerator PostScore()
     {
         WWWForm form = new WWWForm();
+        form.AddField("userName", "some-user-name");
         form.AddField("score", PlayerPrefs.GetInt(Const.PLAYER_SCORE));
-        form.AddField("userName","some-user-name");
-        using (UnityWebRequest www = UnityWebRequest.Post("/leaderboard", form))
+        using (UnityWebRequest www = UnityWebRequest.Post(Const.LEADERBOARD_API, form))
         {
             yield return www.SendWebRequest();
             if (www.isNetworkError || www.isHttpError)
@@ -121,6 +146,10 @@ public class GameController : MonoBehaviour
             PlayerPrefs.SetInt(Const.PLAYER_SCORE, this.score);
 
         this.bulletSpeed += Const.SPEED_STEP;
+        if (this.bulletSpeed > Const.MAX_SPEED)
+        {
+            this.bulletSpeed = Const.MAX_SPEED;
+        }
     }
 
     private void DestroyBullet()
